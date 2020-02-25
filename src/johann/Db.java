@@ -7,13 +7,12 @@ public class Db {
     private Connection c;
     private Statement s;
 
-    Db(String dbPassword) throws SQLException, ClassNotFoundException, InterruptedException {
-        String dbURL = "jdbc:mysql://localhost:3306/Employee?allowPublicKeyRetrieval=true&password="
-                + dbPassword + "&useSSL=false&user=root&serverTimezone=UTC";
+    Db(String dbUser, String dbPassword) throws SQLException, ClassNotFoundException    {
+        String dbURL = "jdbc:mysql://localhost:3306/employees?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
         //establish connection
         Class.forName("com.mysql.cj.jdbc.Driver");
-        c = DriverManager.getConnection(dbURL);
+        c = DriverManager.getConnection(dbURL, dbUser, dbPassword);
         System.out.println("Ansluten");
 
         s = c.createStatement();
@@ -32,12 +31,29 @@ public class Db {
         rows = s.executeUpdate("DELETE FROM Employee WHERE salary=40000");
         System.out.println("nya rader " + rows);
 
+        read();
        
 
         c.close();
     }
     
     String read() {
-        https://github.com/johan-new/workshop_mysql_crud.git
+        StringBuilder returnStr = new StringBuilder();
+
+        try {
+            ResultSet rs = s.executeQuery("SELECT * FROM employee");
+            while (rs.next()) {
+                returnStr.append("Anstid:" + rs.getInt("id") + ", Namn " + rs.getString("name") +
+                        ", Lön: " + rs.getInt("salary") + "\n");
+            }
+        } catch (SQLException e) {
+            returnStr = new StringBuilder("Cannot read database");
+            }
+
+        return returnStr.toString();
+
+        }
+
+
     }
 }
